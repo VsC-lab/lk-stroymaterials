@@ -1,0 +1,343 @@
+[
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2025-12-26T20:19:14.266Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "1",
+    "object_repr": "Кирпич",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2025-12-26T20:20:53.384Z",
+    "user": 1,
+    "content_type": 10,
+    "object_id": "1",
+    "object_repr": "Кирпич 1 (0000001)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2025-12-26T20:23:29.407Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "2",
+    "object_repr": "Мрамор",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 4,
+  "fields": {
+    "action_time": "2025-12-26T20:27:24.085Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "3",
+    "object_repr": "Бетон",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 5,
+  "fields": {
+    "action_time": "2025-12-26T20:29:33.633Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "4",
+    "object_repr": "Металл",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 6,
+  "fields": {
+    "action_time": "2025-12-26T20:30:22.861Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "5",
+    "object_repr": "Брус",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 7,
+  "fields": {
+    "action_time": "2025-12-26T20:33:39.523Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "6",
+    "object_repr": "Фанера",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 8,
+  "fields": {
+    "action_time": "2025-12-26T20:44:17.976Z",
+    "user": 1,
+    "content_type": 10,
+    "object_id": "2",
+    "object_repr": "Красный кирпич (48386362)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 9,
+  "fields": {
+    "action_time": "2025-12-26T20:47:28.426Z",
+    "user": 1,
+    "content_type": 10,
+    "object_id": "3",
+    "object_repr": "Бетон 1 (0000002)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 10,
+  "fields": {
+    "action_time": "2025-12-26T20:50:09.803Z",
+    "user": 1,
+    "content_type": 10,
+    "object_id": "4",
+    "object_repr": "Брус 1 (93483018)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 11,
+  "fields": {
+    "action_time": "2025-12-26T21:07:32.884Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "2",
+    "object_repr": "Петр (Клиент)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "ycpkq021naoupxsw650j9zxb2xd2ogsg",
+  "fields": {
+    "session_data": ".eJxVjDEKwzAMAP-iORgb2WqcsXvfYBRZadIWGxJnKv17CWRo17vj3pB4b3PaN13TkmEAB90vG1meWg6RH1zu1UgtbV1GcyTmtJu51ayv69n-DWbeZhgAFal3E5JQYA3qJtsHQs2eJVj0Xjx5Zomo0VvCyMS5v8TLRJazU-hAeG1J6l4aDM5-vnwnPOc:1va0Ec:yctneQ-0jGGw9EOhvNOMusWew80Am17h4mjLsFwdc1k",
+    "expire_date": "2026-01-11T23:31:38.160Z"
+  }
+},
+{
+  "model": "accounts.customuser",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$NeWvHRPEaQEqe3yTi7LsDd$5VnqcOLSPR6Z+dENwHiUiKwnGN3bJjClN7x3ikm3Crg=",
+    "last_login": "2025-12-26T19:35:43.108Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "exemple@mail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-12-26T19:33:54.160Z",
+    "user_type": "client",
+    "phone": "",
+    "company_name": "",
+    "inn": "",
+    "address": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.customuser",
+  "pk": 2,
+  "fields": {
+    "password": "!8oPE9IeoByktUa0d5TkCqOSDmFFTskq0N3h67Iqq",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Петр",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-12-26T21:07:32.882Z",
+    "user_type": "client",
+    "phone": "+99991112334",
+    "company_name": "МосСтрой",
+    "inn": "4353667",
+    "address": "Ул. МУзыкальная",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.category",
+  "pk": 1,
+  "fields": {
+    "name": "Кирпич",
+    "parent": null
+  }
+},
+{
+  "model": "accounts.category",
+  "pk": 2,
+  "fields": {
+    "name": "Мрамор",
+    "parent": null
+  }
+},
+{
+  "model": "accounts.category",
+  "pk": 3,
+  "fields": {
+    "name": "Бетон",
+    "parent": null
+  }
+},
+{
+  "model": "accounts.category",
+  "pk": 4,
+  "fields": {
+    "name": "Металл",
+    "parent": null
+  }
+},
+{
+  "model": "accounts.category",
+  "pk": 5,
+  "fields": {
+    "name": "Брус",
+    "parent": null
+  }
+},
+{
+  "model": "accounts.category",
+  "pk": 6,
+  "fields": {
+    "name": "Фанера",
+    "parent": null
+  }
+},
+{
+  "model": "accounts.product",
+  "pk": 1,
+  "fields": {
+    "category": 1,
+    "name": "Кирпич 1",
+    "sku": "0000001",
+    "description": "Особенный кирпич №1",
+    "price": "10.00",
+    "stock": 49,
+    "unit": "шт.",
+    "created_at": "2025-12-26T20:20:53.383Z"
+  }
+},
+{
+  "model": "accounts.product",
+  "pk": 2,
+  "fields": {
+    "category": 1,
+    "name": "Красный кирпич",
+    "sku": "48386362",
+    "description": "Облицовочный обоженный красный кирпич",
+    "price": "2500.00",
+    "stock": 14,
+    "unit": "шт.",
+    "created_at": "2025-12-26T20:44:17.975Z"
+  }
+},
+{
+  "model": "accounts.product",
+  "pk": 3,
+  "fields": {
+    "category": 3,
+    "name": "Бетон 1",
+    "sku": "0000002",
+    "description": "Жидкий серый бетон",
+    "price": "1000.00",
+    "stock": 52,
+    "unit": "м^3",
+    "created_at": "2025-12-26T20:47:28.425Z"
+  }
+},
+{
+  "model": "accounts.product",
+  "pk": 4,
+  "fields": {
+    "category": 5,
+    "name": "Брус 1",
+    "sku": "93483018",
+    "description": "Квадратный жесткий прочный брус",
+    "price": "500.00",
+    "stock": 81,
+    "unit": "шт.",
+    "created_at": "2025-12-26T20:50:09.802Z"
+  }
+},
+{
+  "model": "accounts.cart",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "session_key": null,
+    "created_at": "2025-12-28T22:02:08.590Z",
+    "updated_at": "2025-12-28T22:02:08.590Z"
+  }
+},
+{
+  "model": "accounts.cart",
+  "pk": 2,
+  "fields": {
+    "user": null,
+    "session_key": "ycpkq021naoupxsw650j9zxb2xd2ogsg",
+    "created_at": "2025-12-28T23:24:29.064Z",
+    "updated_at": "2025-12-28T23:24:29.064Z"
+  }
+},
+{
+  "model": "accounts.cartitem",
+  "pk": 12,
+  "fields": {
+    "cart": 2,
+    "product": 1,
+    "quantity": 5,
+    "added_at": "2025-12-28T23:24:29.068Z"
+  }
+},
+{
+  "model": "accounts.cartitem",
+  "pk": 14,
+  "fields": {
+    "cart": 2,
+    "product": 2,
+    "quantity": 5,
+    "added_at": "2025-12-28T23:25:00.550Z"
+  }
+}
+]
