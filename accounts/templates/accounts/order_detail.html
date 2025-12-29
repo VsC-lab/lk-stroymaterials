@@ -1,0 +1,107 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Заказ {{ order.order_number }}</h1>
+        <a href="{% url 'order_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Назад к заказам
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Состав заказа</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Товар</th>
+                                <th>Цена</th>
+                                <th>Количество</th>
+                                <th>Сумма</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.product.name }}</strong><br>
+                                    <small class="text-muted">Артикул: {{ item.product.sku }}</small>
+                                </td>
+                                <td>{{ item.price }} ₽</td>
+                                <td>{{ item.quantity }} {{ item.product.unit }}</td>
+                                <td>{{ item.total }} ₽</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Итого:</strong></td>
+                                <td><strong class="h5">{{ order.total_amount }} ₽</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Информация о заказе</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Статус:</strong><br>
+                        <span class="badge 
+                            {% if order.status == 'delivered' %}bg-success
+                            {% elif order.status == 'cancelled' %}bg-danger
+                            {% elif order.status == 'pending' %}bg-warning
+                            {% elif order.status == 'confirmed' %}bg-info
+                            {% else %}bg-secondary{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Дата создания:</strong><br>
+                        {{ order.created_at|date:"d.m.Y H:i" }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Дата обновления:</strong><br>
+                        {{ order.updated_at|date:"d.m.Y H:i" }}
+                    </div>
+                    
+                    {% if order.delivery_address %}
+                    <div class="mb-3">
+                        <strong>Адрес доставки:</strong><br>
+                        {{ order.delivery_address|linebreaks }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if order.comments %}
+                    <div class="mb-3">
+                        <strong>Комментарий:</strong><br>
+                        {{ order.comments|linebreaks }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <button class="btn btn-outline-primary w-100 mb-2">
+                            <i class="bi bi-printer"></i> Распечатать
+                        </button>
+                        <button class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-download"></i> Скачать PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

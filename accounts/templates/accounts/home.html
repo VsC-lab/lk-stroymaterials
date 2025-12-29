@@ -1,0 +1,102 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1>Добро пожаловать в магазин стройматериалов!</h1>
+        <p class="lead">Профессиональные строительные материалы с доставкой</p>
+        
+        {% if not user.is_authenticated %}
+            <div class="alert alert-info">
+                <h4>Для работы с системой необходимо:</h4>
+                <a href="/login/" class="btn btn-primary">Войти в систему</a>
+                <p class="mt-2">Используйте тестовый аккаунт:<br>
+                Логин: <code>testuser</code><br>
+                Пароль: <code>test123</code></p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<h3 class="mt-4">Популярные товары</h3>
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-3 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.price }} руб./{{ product.unit }}</p>
+                <p class="card-text">
+                    <small class="text-muted">В наличии: {{ product.stock }} {{ product.unit }}</small>
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <form method="post" action="{% url 'add_to_cart' product.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="number" name="quantity" value="1" min="1" 
+                               max="{{ product.stock }}" class="form-control" style="width: 80px;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-cart-plus"></i> В корзину
+                        </button>
+                    </div>
+                </form>
+                <!-- Опционально: быстрая кнопка через AJAX -->
+                <button class="btn btn-outline-secondary btn-sm add-to-cart-ajax mt-1"
+                        data-product-id="{{ product.id }}">
+                    Быстрое добавление
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-warning">Товары пока не добавлены в каталог</div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row mt-5">
+    <h2 class="text-center mb-4">Наши преимущества</h2>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="bi bi-truck" style="font-size: 2.5rem; color: #0d6efd;"></i>
+                <h5 class="mt-3">Быстрая доставка</h5>
+                <p class="text-muted">Доставка в день заказа по городу</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="bi bi-shield-check" style="font-size: 2.5rem; color: #198754;"></i>
+                <h5 class="mt-3">Гарантия качества</h5>
+                <p class="text-muted">Все товары сертифицированы</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="bi bi-coin" style="font-size: 2.5rem; color: #ffc107;"></i>
+                <h5 class="mt-3">Выгодные цены</h5>
+                <p class="text-muted">Скидки оптовым покупателям</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="bi bi-headset" style="font-size: 2.5rem; color: #6f42c1;"></i>
+                <h5 class="mt-3">Поддержка 24/7</h5>
+                <p class="text-muted">Консультации по подбору материалов</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

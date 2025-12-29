@@ -1,0 +1,61 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">📋 Мои заказы</h1>
+    
+    {% if orders %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>№ Заказа</th>
+                    <th>Дата</th>
+                    <th>Статус</th>
+                    <th>Сумма</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>
+                        <strong>{{ order.order_number }}</strong>
+                    </td>
+                    <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if order.status == 'delivered' %}bg-success
+                            {% elif order.status == 'cancelled' %}bg-danger
+                            {% elif order.status == 'pending' %}bg-warning
+                            {% elif order.status == 'confirmed' %}bg-info
+                            {% else %}bg-secondary{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ order.total_amount }} ₽</td>
+                    <td>
+                        <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> Просмотр
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1 mb-3">📭</div>
+        <h3 class="mb-3">Заказов пока нет</h3>
+        <p class="text-muted mb-4">Сделайте свой первый заказ из каталога товаров</p>
+        <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-shop"></i> Перейти в каталог
+        </a>
+        <a href="{% url 'cart_view' %}" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-cart"></i> Перейти в корзину
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">✅ Оформление заказа</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Информация о заказе</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Адрес доставки</label>
+                            <textarea name="delivery_address" class="form-control" rows="3" required
+                                      placeholder="Укажите адрес доставки...">{{ user.address }}</textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Комментарий к заказу</label>
+                            <textarea name="comments" class="form-control" rows="2"
+                                      placeholder="Дополнительные пожелания..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle"></i> Подтвердить заказ
+                        </button>
+                        <a href="{% url 'cart_view' %}" class="btn btn-outline-secondary">
+                            Вернуться в корзину
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Состав заказа</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in cart.items.all %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <div>
+                            <strong>{{ item.product.name }}</strong><br>
+                            <small>{{ item.quantity }} × {{ item.price }} ₽</small>
+                        </div>
+                        <span>{{ item.total }} ₽</span>
+                    </div>
+                    {% endfor %}
+                    
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Итого:</strong>
+                        <strong class="h5">{{ cart.total_price }} ₽</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6>Информация о покупателе</h6>
+                    <p class="mb-1"><strong>{{ user.get_full_name|default:user.username }}</strong></p>
+                    {% if user.phone %}<p class="mb-1">Телефон: {{ user.phone }}</p>{% endif %}
+                    {% if user.company_name %}<p class="mb-1">Компания: {{ user.company_name }}</p>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

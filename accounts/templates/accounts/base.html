@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Личный кабинет{% endblock %}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <style>
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            background-color: #f8f9fa;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<script>
+// Функция для обновления счетчика корзины
+function updateCartCounter() {
+    fetch('/cart/get-count/')
+        .then(response => response.json())
+        .then(data => {
+            const cartCountElement = document.getElementById('cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = data.count;
+                
+                // Показываем/скрываем значок в зависимости от количества
+                if (data.count > 0) {
+                    cartCountElement.style.display = 'inline-block';
+                } else {
+                    cartCountElement.style.display = 'none';
+                }
+                
+                // Сохраняем в localStorage для других вкладок
+                localStorage.setItem('cart_count', data.count);
+                localStorage.setItem('cart_updated', Date.now());
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при обновлении счетчика:', error);
+        });
+}
+
+// Обновляем счетчик при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Обновляем счетчик
+    updateCartCounter();
+    
+    // Также обновляем при фокусе на странице (когда пользователь возвращается на вкладку)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            updateCartCounter();
+        }
+    });
+    
+    // Обновляем при клике на любую ссылку (кроме корзины)
+    document.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A' && !e.target.href.includes('/cart/')) {
+            setTimeout(updateCartCounter, 100);
+        }
+    });
+    
+    // Слушаем сообщения от других вкладок
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'cart_updated') {
+            updateCartCounter();
+        }
+    });
+    
+    // Обновляем каждые 30 секунд на случай если другие вкладки изменили корзину
+    setInterval(updateCartCounter, 30000);
+});
+
+// Функция для принудительного обновления счетчика (вызывается после добавления в корзину)
+function forceUpdateCartCounter() {
+    updateCartCounter();
+    
+    // Также обновляем сессию
+    fetch('/cart/get-count/')
+        .then(r => r.json())
+        .then(data => {
+            // Обновляем все открытые вкладки
+            localStorage.setItem('cart_updated', Date.now());
+        });
+}
+</script>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="bi bi-shop"></i> СтройМатериалы
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'catalog' %}">
+                            <i class="bi bi-grid"></i> Каталог
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">
+                            <i class="bi bi-speedometer2"></i> Личный кабинет
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'order_list' %}">
+                            <i class="bi bi-list-check"></i> Мои заказы
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <!-- Иконка корзины -->
+         <li class="nav-item me-3">
+           <a class="nav-link position-relative" href="{% url 'cart_view' %}" id="cart-link">
+             <i class="bi bi-cart3" style="font-size: 1.2rem;"></i>
+              <span id="cart-count" class="cart-count" 
+              data-initial-count="{{ request.session.cart_count|default:0 }}">
+            {{ request.session.cart_count|default:0 }}
+        </span>
+    </a>
+</li>
+                    
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><span class="dropdown-item-text">
+                                <small>{{ user.get_user_type_display }}</small>
+                            </span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right"></i> Выйти
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="btn btn-outline-primary" href="{% url 'login' %}">
+                            <i class="bi bi-box-arrow-in-right"></i> Войти
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Контент -->
+    <div class="container mt-4">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Подвал -->
+    <footer>
+        <div class="container text-center">
+            <p class="text-muted">© 2024 Личный кабинет "СтройМатериалы". Все права защищены.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery для AJAX (опционально) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- JavaScript для корзины -->
+    <script>
+    $(document).ready(function() {
+        // AJAX добавление в корзину
+        $('.add-to-cart-ajax').on('click', function(e) {
+            e.preventDefault();
+            var productId = $(this).data('product-id');
+            var quantity = $(this).data('quantity') || 1;
+            
+            $.ajax({
+                url: '{% url "add_to_cart" 0 %}'.replace('0', productId),
+                type: 'POST',
+                data: {
+                    'quantity': quantity,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Обновляем счетчик корзины
+                        $('#cart-count').text(response.cart_count);
+                        // Показываем уведомление
+                        alert(response.message);
+                    } else {
+                        alert('Ошибка: ' + response.message);
+                    }
+                }
+            });
+        });
+        
+        // Обновление количества в корзине через AJAX
+        $('.update-quantity').on('change', function() {
+            var form = $(this).closest('form');
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        $('#cart-count').text(response.cart_count);
+                        // Перезагружаем страницу для обновления сумм
+                        location.reload();
+                    }
+                }
+            });
+        });
+    });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+    <script>
+// Функция для показа уведомлений
+function showNotification(message, type = 'success') {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    
+    // Создаем элемент уведомления
+    const notification = document.createElement('div');
+    notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = `
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        max-width: 400px;
+    `;
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Добавляем на страницу
+    document.body.appendChild(notification);
+    
+    // Автоматически скрываем через 3 секунды
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Обработка форм добавления в корзину
+document.addEventListener('DOMContentLoaded', function() {
+    // Находим все формы добавления в корзину
+    const cartForms = document.querySelectorAll('form[action*="/cart/add/"]');
+    
+    cartForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const productId = this.action.split('/').filter(part => part).pop();
+            
+            // Отправляем AJAX запрос
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Обновляем счетчик корзины
+                    const cartCountElement = document.getElementById('cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cart_count;
+                    }
+                    
+                    // Показываем уведомление
+                    showNotification(data.message, 'success');
+                    
+                    // Обновляем кнопку (визуальная обратная связь)
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalHTML = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="bi bi-check"></i> Добавлено!';
+                        submitBtn.classList.remove('btn-primary');
+                        submitBtn.classList.add('btn-success');
+                        
+                        setTimeout(() => {
+                            submitBtn.innerHTML = originalHTML;
+                            submitBtn.classList.remove('btn-success');
+                            submitBtn.classList.add('btn-primary');
+                        }, 2000);
+                    }
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Если AJAX не сработал, отправляем форму обычным способом
+                this.submit();
+            });
+        });
+    });
+});
+</script>
+</body>
+</html>

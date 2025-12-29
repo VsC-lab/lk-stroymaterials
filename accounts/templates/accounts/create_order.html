@@ -1,0 +1,71 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">📝 Создание нового заказа</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Информация о заказе</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Адрес доставки</label>
+                            <textarea name="delivery_address" class="form-control" rows="3" 
+                                      placeholder="Укажите адрес доставки..." required></textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Комментарий к заказу</label>
+                            <textarea name="comments" class="form-control" rows="2"
+                                      placeholder="Дополнительные пожелания..."></textarea>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            Товары можно добавить после создания заказа
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Создать заказ
+                        </button>
+                        <a href="{% url 'order_list' %}" class="btn btn-outline-secondary">
+                            Отмена
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Совет</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Рекомендуем:</strong></p>
+                    <ul>
+                        <li>Создавайте заказы через корзину</li>
+                        <li>Указывайте точный адрес доставки</li>
+                        <li>Проверяйте наличие товаров перед заказом</li>
+                    </ul>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'cart_view' %}" class="btn btn-success w-100 mb-2">
+                            <i class="bi bi-cart"></i> Перейти в корзину
+                        </a>
+                        <a href="{% url 'catalog' %}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-shop"></i> Продолжить покупки
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
