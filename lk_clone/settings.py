@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 # Загружаем переменные окружения
 load_dotenv()
 
+# Проверяем, на Render ли мы
+ON_RENDER = 'RENDER' in os.environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -14,9 +17,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
-
-# Проверяем, на Render ли мы
-ON_RENDER = 'RENDER' in os.environ
 
 # ========== ДЕБАГ ЛОГИ ==========
 
@@ -32,27 +32,35 @@ print("=" * 50, file=sys.stderr)
 
 if ON_RENDER:
     # ⚙️ ПРОДАКШЕН НА RENDER
-    DEBUG = False
+    DEBUG = False  # Выключаем дебаг в продакшн-режиме
     
     # Разрешаем все поддомены render.com
     ALLOWED_HOSTS = [
-        '.onrender.com',
-        'localhost',
-        '127.0.0.1',
+        '.onrender.com',  # все поддомены .onrender.com
+        'localhost',       # для разработки локально
+        '127.0.0.1',       # для разработки локально
     ]
     
-    # CSRF trusted origins
+    # Настройка CSRF доверенных источников
     CSRF_TRUSTED_ORIGINS = [
-        'https://*.onrender.com',
-        'http://localhost:8000',
-        'http://127.0.0.1:8000',
+        'https://*.onrender.com',  # Доверяем поддомены на Render
+        'http://localhost:8000',   # Для локальной разработки
+        'http://127.0.0.1:8000',   # Для локальной разработки
     ]
     
+    # Дополнительные настройки для продакшн:
+    # Настройки базы данных, статики, безопасности и т.д.
+
 else:
     # ⚙️ ЛОКАЛЬНАЯ РАЗРАБОТКА
-    DEBUG = True
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+    DEBUG = True  # Включаем дебаг для локальной разработки
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Только локальные хосты
+    
+    # Для локальной разработки разрешаем только локальные запросы
     CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+    
+    # Дополнительные настройки для локальной разработки:
+    # (Ваши настройки для локального окружения)
 
 # ========== БАЗА ДАННЫХ ==========
 
