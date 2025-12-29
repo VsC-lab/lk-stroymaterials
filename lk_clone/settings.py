@@ -1,7 +1,4 @@
-"""
-Django settings for lk_clone project.
-"""
-
+import sys
 import os
 from pathlib import Path
 import dj_database_url
@@ -20,6 +17,16 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key-change-in-pro
 
 # Проверяем, на Render ли мы
 ON_RENDER = 'RENDER' in os.environ
+
+# ========== ДЕБАГ ЛОГИ ==========
+
+print("=" * 50, file=sys.stderr)
+print(f"ON_RENDER: {ON_RENDER}", file=sys.stderr)
+print(f"DATABASE_URL exists: {'DATABASE_URL' in os.environ}", file=sys.stderr)
+db_url = os.environ.get('DATABASE_URL')
+print(f"DATABASE_URL value: {db_url}", file=sys.stderr)
+print(f"DATABASE_URL length: {len(db_url) if db_url else 0}", file=sys.stderr)
+print("=" * 50, file=sys.stderr)
 
 # ========== НАСТРОЙКИ БЕЗОПАСНОСТИ ==========
 
@@ -49,73 +56,60 @@ else:
 
 # ========== БАЗА ДАННЫХ ==========
 
-if ON_RENDER:
-    # База данных PostgreSQL на Render
-    DATABASES = {
+# Начальная конфигурация - по умолчанию SQLite
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
-# If DATABASE_URL is provided (e.g., on Render), use PostgreSQL
-if 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+# Проверяем DATABASE_URL
+database_url = os.environ.get('DATABASE_URL')
+
+if database_url and database_url.strip():
+    # Принудительно добавляем префикс postgresql:// если его нет
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+        print(f"Fixed database URL: {database_url[:50]}...", file=sys.stderr)
     
-    DATABASES = {
-    'default': dj_database_url.config(
-        # Feel free to alter this value to suit your needs.
-        default='postgresql://postgres:postgres@localhost:5432/mysite',
-        conn_max_age=600
-        )
-    }
+    try:
+        # Конфигурируем базу данных
+        DATABASES['default'] = dj_database_url.parse(database_url, conn_max_age=600)
+        print(f"✅ Using PostgreSQL database: {DATABASES['default']['ENGINE']}", file=sys.stderr)
+    except Exception as e:
+        print(f"❌ Error parsing DATABASE_URL: {e}", file=sys.stderr)
+        print(f"Keeping SQLite configuration", file=sys.stderr)
 else:
-    # SQLite для локальной разработки
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+    print("ℹ️ DATABASE_URL not found, using SQLite", file=sys.stderr)
+
+print(f"Final DATABASES config: {DATABASES['default']['ENGINE']}", file=sys.stderr)
 
 # ========== СТАТИЧЕСКИЕ ФАЙЛЫ ==========
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 
+# Общая конфигурация MIDDLEWARE
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Добавляем whitenoise для всех
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
 if ON_RENDER:
-    # На Render: WhiteNoise для статических файлов
+    # На Render
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    
-    MIDDLEWARE = [
-        'whitenoise.middleware.WhiteNoiseMiddleware',
-        'django.middleware.security.SecurityMiddleware',
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    ]
 else:
     # Локально
     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    
-    MIDDLEWARE = [
-        'django.middleware.security.SecurityMiddleware',
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    ]
 
 # Медиа файлы
 MEDIA_URL = '/media/'
@@ -133,10 +127,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
 ]
-
-# Если на Render, добавляем whitenoise
-if ON_RENDER:
-    INSTALLED_APPS.insert(0, 'whitenoise.runserver_nostatic')
 
 ROOT_URLCONF = 'lk_clone.urls'
 
@@ -205,4 +195,6 @@ LOGGING = {
     },
 }
 
-print(f"✅ Настройки загружены: {'Render (продакшен)' if ON_RENDER else 'Локальная разработка'}")
+print(f"✅ Настройки загружены: {'Render (продакшен)' if ON_RENDER else 'Локальная разработка'}", file=sys.stderr)
+print(f"Database engine: {DATABASES['default']['ENGINE']}", file=sys.stderr)
+print(f"Debug mode: {DEBUG}", file=sys.stderr)
