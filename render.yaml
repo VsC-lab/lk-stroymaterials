@@ -26,5 +26,5 @@ services:
 databases:
   - name: lkdb
     plan: free
-    databaseName: lk_clone
-    user: lk_user
+    databaseName: your-db-name
+    user: lk_useryourdb_ctsh_user
