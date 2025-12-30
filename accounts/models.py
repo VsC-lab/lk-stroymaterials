@@ -76,23 +76,42 @@ class Order(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
     
-    def save(self, *args, **kwargs):
+def save(self, *args, **kwargs):
         if not self.order_number:
-            # Генерация номера заказа: ORD-ГГММДД-0001
-            date_str = timezone.now().strftime('%y%m%d')
-            last_order = Order.objects.filter(order_number__startswith=f'ORD-{date_str}').last()
-            if last_order:
-                last_num = int(last_order.order_number.split('-')[-1])
-                new_num = last_num + 1
-            else:
-                new_num = 1
-            self.order_number = f'ORD-{date_str}-{new_num:04d}'
+            # Пробуем несколько раз сгенерировать уникальный номер
+            for attempt in range(10):  # максимум 10 попыток
+                try:
+                    date_str = now().strftime('%y%m%d')  # 251230 для 30.12.2025
+                    
+                    # Ищем последний заказ за сегодня
+                    today_orders = Order.objects.filter(
+                        order_number__startswith=f"ORD-{date_str}"
+                    )
+                    
+                    if today_orders.exists():
+                        last_order = today_orders.order_by('order_number').last()
+                        last_num = int(last_order.order_number.split('-')[-1])
+                        new_num = last_num + 1
+                    else:
+                        new_num = 1
+                    
+                    self.order_number = f"ORD-{date_str}-{new_num:04d}"
+                    
+                    # Проверяем уникальность перед сохранением
+                    if not Order.objects.filter(order_number=self.order_number).exists():
+                        break
+                        
+                except (ValueError, IndexError):
+                    # Если ошибка парсинга, создаем случайный номер
+                    import random
+                    self.order_number = f"ORD-{date_str}-{random.randint(1000, 9999):04d}"
+                    break
         super().save(*args, **kwargs)
     
-    def __str__(self):
+def __str__(self):
         return f"Заказ {self.order_number} ({self.get_status_display()})"
     
-    class Meta:
+class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
         ordering = ['-created_at']
