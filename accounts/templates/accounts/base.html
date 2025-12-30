@@ -29,80 +29,19 @@
             padding: 20px 0;
             background-color: #f8f9fa;
         }
+        /* Стиль для fixed уведомлений */
+        .fixed-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            max-width: 400px;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
-<script>
-// Функция для обновления счетчика корзины
-function updateCartCounter() {
-    fetch('/cart/get-count/')
-        .then(response => response.json())
-        .then(data => {
-            const cartCountElement = document.getElementById('cart-count');
-            if (cartCountElement) {
-                cartCountElement.textContent = data.count;
-                
-                // Показываем/скрываем значок в зависимости от количества
-                if (data.count > 0) {
-                    cartCountElement.style.display = 'inline-block';
-                } else {
-                    cartCountElement.style.display = 'none';
-                }
-                
-                // Сохраняем в localStorage для других вкладок
-                localStorage.setItem('cart_count', data.count);
-                localStorage.setItem('cart_updated', Date.now());
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка при обновлении счетчика:', error);
-        });
-}
-
-// Обновляем счетчик при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    // Обновляем счетчик
-    updateCartCounter();
-    
-    // Также обновляем при фокусе на странице (когда пользователь возвращается на вкладку)
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-            updateCartCounter();
-        }
-    });
-    
-    // Обновляем при клике на любую ссылку (кроме корзины)
-    document.addEventListener('click', function(e) {
-        if (e.target.tagName === 'A' && !e.target.href.includes('/cart/')) {
-            setTimeout(updateCartCounter, 100);
-        }
-    });
-    
-    // Слушаем сообщения от других вкладок
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'cart_updated') {
-            updateCartCounter();
-        }
-    });
-    
-    // Обновляем каждые 30 секунд на случай если другие вкладки изменили корзину
-    setInterval(updateCartCounter, 30000);
-});
-
-// Функция для принудительного обновления счетчика (вызывается после добавления в корзину)
-function forceUpdateCartCounter() {
-    updateCartCounter();
-    
-    // Также обновляем сессию
-    fetch('/cart/get-count/')
-        .then(r => r.json())
-        .then(data => {
-            // Обновляем все открытые вкладки
-            localStorage.setItem('cart_updated', Date.now());
-        });
-}
-</script>
 <body>
     <!-- Навигация -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -138,29 +77,33 @@ function forceUpdateCartCounter() {
                 
                 <ul class="navbar-nav">
                     <!-- Иконка корзины -->
-         <li class="nav-item me-3">
-           <a class="nav-link position-relative" href="{% url 'cart_view' %}" id="cart-link">
-             <i class="bi bi-cart3" style="font-size: 1.2rem;"></i>
-              <span id="cart-count" class="cart-count" 
-              data-initial-count="{{ request.session.cart_count|default:0 }}">
-            {{ request.session.cart_count|default:0 }}
-        </span>
-    </a>
-</li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link position-relative" href="{% url 'cart_view' %}" id="cart-link">
+                            <i class="bi bi-cart3" style="font-size: 1.2rem;"></i>
+                            <span id="cart-count" class="cart-count" data-initial-count="{{ request.session.cart_count|default:0 }}">
+                                {{ request.session.cart_count|default:0 }}
+                            </span>
+                        </a>
+                    </li>
                     
                     {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i> {{ user.username }}
                         </a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li><span class="dropdown-item-text">
-                                <small>{{ user.get_user_type_display }}</small>
+                                <small>Пользователь</small>
                             </span></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">
-                                <i class="bi bi-box-arrow-right"></i> Выйти
-                            </a></li>
+                            <li>
+                                <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-box-arrow-right"></i> Выйти
+                                    </button>
+                                </form>
+                            </li>
                         </ul>
                     </li>
                     {% else %}
@@ -192,7 +135,7 @@ function forceUpdateCartCounter() {
     <!-- Подвал -->
     <footer>
         <div class="container text-center">
-            <p class="text-muted">© 2024 Личный кабинет "СтройМатериалы". Все права защищены.</p>
+            <p class="text-muted">© {% now "Y" %} Личный кабинет "СтройМатериалы". Все права защищены.</p>
         </div>
     </footer>
 
@@ -202,10 +145,78 @@ function forceUpdateCartCounter() {
     <!-- jQuery для AJAX (опционально) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <!-- JavaScript для корзины -->
+    <!-- Основной JavaScript -->
     <script>
-    $(document).ready(function() {
-        // AJAX добавление в корзину
+    // Функция для обновления счетчика корзины
+    function updateCartCounter() {
+        fetch('/cart/get-count/')
+            .then(response => response.json())
+            .then(data => {
+                const cartCountElement = document.getElementById('cart-count');
+                if (cartCountElement) {
+                    cartCountElement.textContent = data.count;
+                    
+                    // Показываем/скрываем значок
+                    if (data.count > 0) {
+                        cartCountElement.style.display = 'inline-block';
+                    } else {
+                        cartCountElement.style.display = 'none';
+                    }
+                    
+                    // Сохраняем для других вкладок
+                    localStorage.setItem('cart_count', data.count);
+                    localStorage.setItem('cart_updated', Date.now());
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при обновлении счетчика:', error);
+            });
+    }
+
+    // Функция для показа уведомлений
+    function showNotification(message, type = 'success') {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        
+        // Создаем элемент уведомления
+        const notification = document.createElement('div');
+        notification.className = `alert ${alertClass} alert-dismissible fade show fixed-notification`;
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Добавляем на страницу
+        document.body.appendChild(notification);
+        
+        // Автоматически скрываем через 3 секунды
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обновляем счетчик корзины
+        updateCartCounter();
+        
+        // Обновляем каждые 30 секунд
+        setInterval(updateCartCounter, 30000);
+        
+        // Обновляем при возврате на вкладку
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                updateCartCounter();
+            }
+        });
+        
+        // Слушаем сообщения от других вкладок
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'cart_updated') {
+                updateCartCounter();
+            }
+        });
+        
+        // AJAX добавление в корзину (jQuery)
         $('.add-to-cart-ajax').on('click', function(e) {
             e.preventDefault();
             var productId = $(this).data('product-id');
@@ -220,124 +231,49 @@ function forceUpdateCartCounter() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Обновляем счетчик корзины
                         $('#cart-count').text(response.cart_count);
-                        // Показываем уведомление
-                        alert(response.message);
+                        showNotification(response.message, 'success');
                     } else {
-                        alert('Ошибка: ' + response.message);
+                        showNotification('Ошибка: ' + response.message, 'error');
                     }
                 }
             });
         });
         
-        // Обновление количества в корзине через AJAX
-        $('.update-quantity').on('change', function() {
-            var form = $(this).closest('form');
-            $.ajax({
-                url: form.attr('action'),
-                type: 'POST',
-                data: form.serialize(),
-                success: function(response) {
-                    if (response.success) {
-                        $('#cart-count').text(response.cart_count);
-                        // Перезагружаем страницу для обновления сумм
-                        location.reload();
+        // Обработка форм добавления в корзину (vanilla JS)
+        const cartForms = document.querySelectorAll('form[action*="/cart/add/"]');
+        cartForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Обновляем счетчик
+                        updateCartCounter();
+                        showNotification(data.message, 'success');
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.submit(); // Отправляем форму обычным способом при ошибке
+                });
             });
         });
     });
     </script>
     
     {% block extra_js %}{% endblock %}
-    <script>
-// Функция для показа уведомлений
-function showNotification(message, type = 'success') {
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-    
-    // Создаем элемент уведомления
-    const notification = document.createElement('div');
-    notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
-    notification.style.cssText = `
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        min-width: 300px;
-        max-width: 400px;
-    `;
-    notification.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    // Добавляем на страницу
-    document.body.appendChild(notification);
-    
-    // Автоматически скрываем через 3 секунды
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
-
-// Обработка форм добавления в корзину
-document.addEventListener('DOMContentLoaded', function() {
-    // Находим все формы добавления в корзину
-    const cartForms = document.querySelectorAll('form[action*="/cart/add/"]');
-    
-    cartForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const productId = this.action.split('/').filter(part => part).pop();
-            
-            // Отправляем AJAX запрос
-            fetch(this.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Обновляем счетчик корзины
-                    const cartCountElement = document.getElementById('cart-count');
-                    if (cartCountElement) {
-                        cartCountElement.textContent = data.cart_count;
-                    }
-                    
-                    // Показываем уведомление
-                    showNotification(data.message, 'success');
-                    
-                    // Обновляем кнопку (визуальная обратная связь)
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        const originalHTML = submitBtn.innerHTML;
-                        submitBtn.innerHTML = '<i class="bi bi-check"></i> Добавлено!';
-                        submitBtn.classList.remove('btn-primary');
-                        submitBtn.classList.add('btn-success');
-                        
-                        setTimeout(() => {
-                            submitBtn.innerHTML = originalHTML;
-                            submitBtn.classList.remove('btn-success');
-                            submitBtn.classList.add('btn-primary');
-                        }, 2000);
-                    }
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Если AJAX не сработал, отправляем форму обычным способом
-                this.submit();
-            });
-        });
-    });
-});
-</script>
 </body>
 </html>

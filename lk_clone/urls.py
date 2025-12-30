@@ -23,5 +23,5 @@ urlpatterns = [
      path('cart/get-count/', views.get_cart_count, name='get_cart_count'),
     path('test-simple-add/<int:product_id>/', views.test_simple_add, name='test_simple_add'),
     path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
 ]

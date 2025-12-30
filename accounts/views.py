@@ -75,31 +75,45 @@ def register_view(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 # ==================== ГЛАВНАЯ СТРАНИЦА ====================
-
 def home(request):
     """Главная страница"""
     try:
-        # Популярные товары
-        popular_products = Product.objects.filter(
-            is_popular=True,
-            stock__gt=0
-        ).select_related('category')[:8]
+        # Все товары в наличии
+        available_products = Product.objects.filter(stock__gt=0)
         
-        # Новинки
-        new_products = Product.objects.filter(
-            stock__gt=0
-        ).order_by('-created_at')[:8]
+        # 1. Популярные товары
+        popular_products = available_products.filter(is_popular=True)[:8]
+        
+        # Если популярных мало (меньше 4), добавляем другие
+        if popular_products.count() < 4:
+            additional = available_products.exclude(
+                id__in=[p.id for p in popular_products]
+            )[:8 - popular_products.count()]
+            popular_products = list(popular_products) + list(additional)
+        
+        # 2. Новинки
+        new_products = available_products.order_by('-created_at')[:8]
         
     except Exception as e:
         print(f"Error in home view: {e}")
-        popular_products = []
-        new_products = []
+        
+        # В случае ошибки показываем все товары
+        popular_products = Product.objects.all()[:8]
+        new_products = Product.objects.order_by('-created_at')[:8]
     
-    return render(request, 'accounts/home.html', {
+    # Статистика
+    total_products = Product.objects.count()
+    in_stock_count = Product.objects.filter(stock__gt=0).count()
+    
+    context = {
         'popular_products': popular_products,
         'new_products': new_products,
-        'products': popular_products,  # для совместимости со старыми шаблонами
-    })
+        'total_products': total_products,
+        'in_stock_count': in_stock_count,
+        'user': request.user
+    }
+    
+    return render(request, 'accounts/home.html', context)
 
 # ==================== ЛИЧНЫЙ КАБИНЕТ ====================
 
