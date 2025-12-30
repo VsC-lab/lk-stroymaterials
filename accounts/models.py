@@ -77,35 +77,31 @@ class Order(models.Model):
     email = models.EmailField(blank=True)
     
 def save(self, *args, **kwargs):
+        """Сохранение заказа с генерацией номера"""
         if not self.order_number:
-            # Пробуем несколько раз сгенерировать уникальный номер
-            for attempt in range(10):  # максимум 10 попыток
+            from django.utils.timezone import now
+            import random
+            import time
+            
+            # Генерируем до 10 раз пока не найдем уникальный
+            for attempt in range(10):
                 try:
-                    date_str = now().strftime('%y%m%d')  # 251230 для 30.12.2025
+                    date_str = now().strftime('%y%m%d')
+                    random_num = random.randint(1000, 9999)
+                    proposed_number = f"ORD-{date_str}-{random_num:04d}"
                     
-                    # Ищем последний заказ за сегодня
-                    today_orders = Order.objects.filter(
-                        order_number__startswith=f"ORD-{date_str}"
-                    )
-                    
-                    if today_orders.exists():
-                        last_order = today_orders.order_by('order_number').last()
-                        last_num = int(last_order.order_number.split('-')[-1])
-                        new_num = last_num + 1
-                    else:
-                        new_num = 1
-                    
-                    self.order_number = f"ORD-{date_str}-{new_num:04d}"
-                    
-                    # Проверяем уникальность перед сохранением
-                    if not Order.objects.filter(order_number=self.order_number).exists():
+                    # Проверяем существование
+                    if not Order.objects.filter(order_number=proposed_number).exists():
+                        self.order_number = proposed_number
                         break
                         
-                except (ValueError, IndexError):
-                    # Если ошибка парсинга, создаем случайный номер
-                    import random
-                    self.order_number = f"ORD-{date_str}-{random.randint(1000, 9999):04d}"
-                    break
+                except Exception:
+                    # Если ошибка, используем timestamp
+                    pass
+            
+            # Если не удалось сгенерировать уникальный
+            if not self.order_number:
+                self.order_number = f"ORD-TS-{int(time.time())}-{random.randint(100, 999)}"
         super().save(*args, **kwargs)
     
 def __str__(self):
