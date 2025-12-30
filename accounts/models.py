@@ -73,6 +73,8 @@ class Order(models.Model):
     comments = models.TextField('Комментарии', blank=True)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
     updated_at = models.DateTimeField('Дата обновления', auto_now=True)
+    phone = models.CharField(max_length=20, blank=True)
+    email = models.EmailField(blank=True)
     
     def save(self, *args, **kwargs):
         if not self.order_number:
