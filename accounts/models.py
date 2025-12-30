@@ -76,7 +76,7 @@ class Order(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
     
-def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):
         """Сохранение заказа с генерацией номера"""
         if not self.order_number:
             from django.utils.timezone import now
@@ -104,7 +104,7 @@ def save(self, *args, **kwargs):
                 self.order_number = f"ORD-TS-{int(time.time())}-{random.randint(100, 999)}"
         super().save(*args, **kwargs)
     
-def __str__(self):
+    def __str__(self):
         return f"Заказ {self.order_number} ({self.get_status_display()})"
     
 class Meta:
