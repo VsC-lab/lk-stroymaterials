@@ -134,7 +134,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
 ]
 
 ROOT_URLCONF = 'lk_clone.urls'
