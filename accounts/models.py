@@ -146,7 +146,7 @@ class Cart(models.Model):
     @property
     def total_items(self):
         """Общее количество товаров в корзине"""
-        from django.db.models import Sum  # ← ДОБАВЬТЕ ЭТУ СТРОКУ
+        from django.db.models import Sum 
         return self.items.aggregate(total=Sum('quantity'))['total'] or 0
     
     @property
