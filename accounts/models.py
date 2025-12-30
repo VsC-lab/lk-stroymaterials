@@ -45,7 +45,7 @@ class Product(models.Model):
     stock = models.PositiveIntegerField('Остаток на складе', default=0)
     unit = models.CharField('Единица измерения', max_length=20, default='шт.')
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
-    
+    is_popular = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.name} ({self.sku})"
     
