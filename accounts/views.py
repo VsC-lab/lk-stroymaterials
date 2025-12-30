@@ -312,7 +312,7 @@ def checkout_from_cart(request):
     
     if request.method == 'POST':
         # Создаем заказ
-        order = Order.objects.create(
+        order = Order(
             user=request.user,
             status='pending',
             total_amount=cart.total_price,
