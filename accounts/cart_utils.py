@@ -125,3 +125,31 @@ def merge_carts(session_cart, user_cart):
         session_cart.delete()
     
     return user_cart
+def merge_carts_on_login(request, user):
+    """
+    Функция для signals.py - объединяет корзины при входе
+    """
+    try:
+        # Получаем ключ сессии
+        session_key = request.session.session_key
+        
+        # Ищем гостевую корзину
+        session_cart = None
+        if session_key:
+            from .models import Cart
+            session_cart = Cart.objects.filter(
+                session_key=session_key,
+                user__isnull=True
+            ).first()
+        
+        # Получаем или создаем корзину пользователя
+        user_cart, created = Cart.objects.get_or_create(user=user)
+        
+        # Объединяем если есть что объединять
+        if session_cart:
+            return merge_carts(session_cart, user_cart)
+        return user_cart
+        
+    except Exception as e:
+        print(f"Ошибка в merge_carts_on_login: {e}")
+        return None
