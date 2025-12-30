@@ -314,7 +314,7 @@ def checkout_from_cart(request):
         # Создаем заказ
         order = Order.objects.create(
             user=request.user,
-            status='new',
+            status='pending',
             total_amount=cart.total_price,
             delivery_address=request.POST.get('delivery_address', ''),
             phone=request.POST.get('phone', ''),
