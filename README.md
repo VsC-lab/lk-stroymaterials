@@ -22,53 +22,106 @@
 
 ### Структура проекта:
 my_lk_project/
-├── 📁 accounts/ # Основное приложение
-│ ├── 📄 init.py
-│ ├── 📄 admin.py # Регистрация моделей в админке
-│ ├── 📄 apps.py # Конфигурация приложения
-│ ├── 📄 models.py # Модели данных (500+ строк)
-│ ├── 📄 views.py # Контроллеры (20+ views)
-│ ├── 📄 urls.py # Маршруты приложения
-│ ├── 📄 forms.py # Формы Django
-│ ├── 📄 cart_utils.py # Логика работы с корзиной
-│ ├── 📁 management/
-│ │ └── 📁 commands/
-│ │ ├── 📄 create_test_users.py
-│ │ └── 📄 create_test_products.py
-│ ├── 📁 migrations/ # Миграции базы данных
-│ └── 📁 templates/ # HTML шаблоны
-│ ├── 📁 accounts/
-│ │ ├── 📄 base.html
-│ │ ├── 📄 home.html
-│ │ ├── 📄 login.html
-│ │ ├── 📄 dashboard.html
-│ │ ├── 📄 catalog.html
-│ │ ├── 📄 cart.html
-│ │ ├── 📄 checkout.html
-│ │ ├── 📄 order_list.html
-│ │ └── 📄 order_detail.html
-│ └── 📁 includes/ # Частичные шаблоны
-├── 📁 lk_clone/ # Настройки проекта Django
-│ ├── 📄 init.py
-│ ├── 📄 settings.py # Основная конфигурация
-│ ├── 📄 urls.py # Корневые URL-адреса
-│ ├── 📄 wsgi.py # WSGI конфигурация
-│ └── 📄 asgi.py
-├── 📁 static/ # Статические файлы
-│ ├── 📁 css/
-│ │ └── 📄 style.css
-│ ├── 📁 js/
-│ │ └── 📄 main.js
-│ └── 📁 images/
-├── 📁 media/ # Загружаемые пользователями файлы
-├── 📄 .env # Переменные окружения (не в git)
-├── 📄 .gitignore # Игнорируемые файлы
-├── 📄 requirements.txt # Зависимости Python (15+ пакетов)
-├── 📄 runtime.txt # Версия Python для Render
-├── 📄 render.yaml # Конфигурация деплоя
-├── 📄 README.md # Эта документация
-├── 📄 LICENSE # Лицензия MIT
-└── 📄 manage.py # Утилиты Django
+* 📁 accounts/
+** 📄 __init__.py
+** 📄 admin.py
+** 📄 apps.py
+** 📄 models.py
+*** CustomUser
+*** Product
+*** Category
+*** Order
+*** OrderItem
+*** Cart
+*** CartItem
+** 📄 views.py
+*** home()
+*** login_view()
+*** logout_view()
+*** dashboard()
+*** product_catalog()
+*** cart_view()
+*** add_to_cart_view()
+*** remove_from_cart_view()
+*** update_cart_item_view()
+*** clear_cart_view()
+*** checkout_from_cart()
+*** order_list()
+*** order_detail()
+*** create_order()
+*** get_cart_count()
+*** test_simple_add()
+** 📄 urls.py
+** 📄 forms.py
+** 📄 cart_utils.py
+** 📁 management/
+*** 📁 commands/
+**** 📄 create_test_users.py
+**** 📄 create_test_products.py
+** 📁 migrations/
+*** 📄 __init__.py
+*** 📄 0001_initial.py
+** 📁 templates/
+*** 📁 accounts/
+**** 📄 base.html
+**** 📄 home.html
+**** 📄 login.html
+**** 📄 dashboard.html
+**** 📄 catalog.html
+**** 📄 cart.html
+**** 📄 checkout.html
+**** 📄 order_list.html
+**** 📄 order_detail.html
+**** 📄 create_order.html
+*
+* 📁 lk_clone/
+** 📄 __init__.py
+** 📄 settings.py
+*** BASE_DIR
+*** SECRET_KEY
+*** DEBUG
+*** DATABASES
+*** INSTALLED_APPS
+*** MIDDLEWARE
+*** TEMPLATES
+*** STATIC_URL/STATIC_ROOT
+*** MEDIA_URL/MEDIA_ROOT
+*** LOGIN_URL/LOGOUT_REDIRECT_URL
+*** APP_CONFIG
+** 📄 urls.py
+** 📄 wsgi.py
+** 📄 asgi.py
+*
+* 📁 static/
+** 📁 css/
+*** 📄 style.css
+** 📁 js/
+*** 📄 main.js
+** 📁 images/
+*** 📄 logo.png
+*
+* 📁 media/
+** 📁 products/
+** 📁 avatars/
+*
+* 📄 .env
+* 📄 .gitignore
+* 📄 requirements.txt
+** Django>=5.0.2
+** whitenoise==6.6.0
+** dj-database-url==2.3.0
+** gunicorn==21.2.0
+** psycopg[binary]==3.1.18
+** python-dotenv==1.0.0
+* 📄 runtime.txt
+* 📄 render.yaml
+** services
+** buildCommand
+** startCommand
+** envVars
+* 📄 README.md
+* 📄 LICENSE
+* 📄 manage.py
 
 ### Конфигурация (render.yaml)
 services:
