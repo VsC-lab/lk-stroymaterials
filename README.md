@@ -22,23 +22,53 @@
 
 ### Структура проекта:
 my_lk_project/
-├── accounts/                # Основное приложение
-│   ├── models.py            # Модели данных
-│   ├── views.py             # Контроллеры (500+ строк)
-│   ├── urls.py              # Маршруты приложения
-│   ├── templates/           # 15+ HTML шаблонов
-│   ├── cart_utils.py        # Логика корзины
-│   └── management/commands/ # Кастомные команды
-├── lk_clone/                # Настройки проекта
-│   ├── settings.py          # Конфигурация (prod/dev)
-│   ├── urls.py              # Корневые URL
-│   └── wsgi.py              # WSGI конфигурация
-├── static/                  # Статические файлы
-├── media/                   # Загружаемые файлы
-├── requirements.txt         # 15+ зависимостей
-├── render.yaml             # Конфигурация для Render
-├── runtime.txt             # Версия Python
-└── manage.py               # Django CLI
+├── 📁 accounts/ # Основное приложение
+│ ├── 📄 init.py
+│ ├── 📄 admin.py # Регистрация моделей в админке
+│ ├── 📄 apps.py # Конфигурация приложения
+│ ├── 📄 models.py # Модели данных (500+ строк)
+│ ├── 📄 views.py # Контроллеры (20+ views)
+│ ├── 📄 urls.py # Маршруты приложения
+│ ├── 📄 forms.py # Формы Django
+│ ├── 📄 cart_utils.py # Логика работы с корзиной
+│ ├── 📁 management/
+│ │ └── 📁 commands/
+│ │ ├── 📄 create_test_users.py
+│ │ └── 📄 create_test_products.py
+│ ├── 📁 migrations/ # Миграции базы данных
+│ └── 📁 templates/ # HTML шаблоны
+│ ├── 📁 accounts/
+│ │ ├── 📄 base.html
+│ │ ├── 📄 home.html
+│ │ ├── 📄 login.html
+│ │ ├── 📄 dashboard.html
+│ │ ├── 📄 catalog.html
+│ │ ├── 📄 cart.html
+│ │ ├── 📄 checkout.html
+│ │ ├── 📄 order_list.html
+│ │ └── 📄 order_detail.html
+│ └── 📁 includes/ # Частичные шаблоны
+├── 📁 lk_clone/ # Настройки проекта Django
+│ ├── 📄 init.py
+│ ├── 📄 settings.py # Основная конфигурация
+│ ├── 📄 urls.py # Корневые URL-адреса
+│ ├── 📄 wsgi.py # WSGI конфигурация
+│ └── 📄 asgi.py
+├── 📁 static/ # Статические файлы
+│ ├── 📁 css/
+│ │ └── 📄 style.css
+│ ├── 📁 js/
+│ │ └── 📄 main.js
+│ └── 📁 images/
+├── 📁 media/ # Загружаемые пользователями файлы
+├── 📄 .env # Переменные окружения (не в git)
+├── 📄 .gitignore # Игнорируемые файлы
+├── 📄 requirements.txt # Зависимости Python (15+ пакетов)
+├── 📄 runtime.txt # Версия Python для Render
+├── 📄 render.yaml # Конфигурация деплоя
+├── 📄 README.md # Эта документация
+├── 📄 LICENSE # Лицензия MIT
+└── 📄 manage.py # Утилиты Django
 
 ### Конфигурация (render.yaml)
 services:
@@ -52,7 +82,7 @@ services:
       python manage.py collectstatic --noinput
       python manage.py migrate
       python deploy_script.py
-    startCommand: gunicorn lk_clone.wsgi:application  # ← ВАЖНО!
+    startCommand: gunicorn lk_clone.wsgi:application
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -73,23 +103,43 @@ databases:
     databaseName: your-db-name
     user: lk_useryourdb_ctsh_user
 
-### Архитектура:
-    class CustomUser(AbstractUser):  # Расширенная модель пользователя
+## 📐 Архитектурные слои
 
-class Product(models.Model):         # Товары
-    name = models.CharField(...)     # Название
-    price = models.DecimalField(...) # Цена
-    stock = models.IntegerField(...) # Остаток
-    category = models.ForeignKey(...)# Категория
+### 🎨 **Презентационный слой (Frontend)**
+- **HTML5/CSS3** - семантическая верстка
+  - `accounts/templates/` - 15+ шаблонов
+  - Bootstrap 5 - адаптивный дизайн
+- **JavaScript** - интерактивность
+  - AJAX/Fetch API - динамические обновления
+  - DOM манипуляции - обновление интерфейса
 
-class Order(models.Model):           # Заказы
-    user = models.ForeignKey(...)    # Пользователь
-    status = models.CharField(...)   # Статус
-    total_amount = models.DecimalField(...) # Сумма
+### ⚙️ **Бизнес-логика (Backend)**
+- **Контроллеры (Views)**
+  - `accounts/views.py` - 20+ обработчиков запросов
+  - Декораторы `@login_required`, `@require_POST`
+  - Обработка форм и валидация
+- **Модели (Models)**
+  - `CustomUser` - расширенная модель пользователя
+  - `Product`, `Category` - каталог товаров
+  - `Order`, `OrderItem` - система заказов
+  - `Cart`, `CartItem` - корзина покупок
 
-class Cart(models.Model):            # Корзины
-    user = models.ForeignKey(...)    # Пользователь (nullable)
-    session_key = models.CharField(...) # Сессия гостя
+### 🗄️ **Уровень данных (Data Layer)**
+- **PostgreSQL** (продакшен)
+  - Таблицы: 7 основных, 10+ связей
+  - Индексы для оптимизации запросов
+- **SQLite** (разработка)
+  - Локальная БД для тестирования
+- **Django ORM**
+  - QuerySet API - построение запросов
+  - Миграции - управление схемой БД
+  - Сигналы - обработка событий
+
+### 🌐 **Инфраструктура (Infrastructure)**
+- **Хостинг**: Render.com (PaaS)
+- **Сервер приложений**: Gunicorn
+- **Статические файлы**: WhiteNoise + CDN
+- **База данных**: Managed PostgreSQL
 
 
 ### Функциональность:
@@ -128,14 +178,3 @@ class Cart(models.Model):            # Корзины
 Активные заказы
 
 Общая сумма покупок
-
-
-### API эндпоинты:
-
-Метод	            Эндпоинт	                       Описание
-GET	            /cart/get-count/	           Количество товаров в корзине
-POST	        /cart/add/<id>/             	Добавить товар в корзину
-POST	        /cart/remove/<id>/	             Удалить из корзины
-POST	        /cart/update/<id>/	              Обновить количество
-GET	            /orders/	                    Список заказов пользователя
-GET	            /orders/<id>/	                    Детали заказа
