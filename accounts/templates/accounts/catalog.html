@@ -54,12 +54,117 @@
                             <!-- ТЕСТОВАЯ КНОПКА (всегда работает) -->
                             <div class="d-grid gap-1 mt-2">
                                 <button onclick="testAddToCart({{ product.id }})" 
-                                   class="btn btn-success btn-sm w-100 mt-2">
+                                         class="btn btn-success btn-sm w-100 mt-2">
                                     <i class="bi bi-check-circle"></i> Тест добавления
                                 </button>
 
+                                <script>
+                            // Функция для добавления товара в корзину
+                                 function testAddToCart(productId) {
+                                     console.log('Добавляем товар ID:', productId);
+                                     fetch(`/test-simple-add/${productId}/`, {
+                                         method: 'POST',
+                                         headers: {
+                                            'Content-Type': 'application/json',
+                                             'X-CSRFToken': getCSRFToken(), // Получаем CSRF токен
+                                             'X-Requested-With': 'XMLHttpRequest'
+                                        }
+                                    })
+                                    .then(response => {
+                                         console.log('Ответ получен, статус:', response.status);
+                                         return response.json();
+                                    })
+                                    .then(data => {
+                                        console.log('Данные от сервера:', data);
 
-                                
+                                        if (data.success) {
+                                            // Показываем успешное сообщение
+                                            showAlert('success', '✅ ' + data.message + '<br>Товаров в корзине: ' + data.cart_count);
+
+                                            // Обновляем счетчик корзины на странице
+                                            updateCartCounter(data.cart_count);
+                                        } else {
+                                            // Показываем ошибку
+                                            showAlert('error', '❌ Ошибка: ' + data.error);
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Ошибка сети:', error);
+                                        showAlert('error', 'Ошибка соединения с сервером');
+                                    });
+                                }
+
+                                // Функция для получения CSRF токена
+                                function getCSRFToken() {
+                                    // Ищем токен в форме
+                                    const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+                                    if (tokenInput) {
+                                        return tokenInput.value;
+                                    }
+                                    
+                                    // Ищем в cookies
+                                    const cookies = document.cookie.split(';');
+                                    for (let cookie of cookies) {
+                                        const [name, value] = cookie.trim().split('=');
+                                        if (name === 'csrftoken') {
+                                            return value;
+                                        }
+                                    }
+                                    
+                                    console.warn('CSRF токен не найден!');
+                                    return '';
+                                }
+
+                                // Функция для показа уведомлений
+                                function showAlert(type, message) {
+                                    // Создаем элемент для уведомления
+                                    const alertDiv = document.createElement('div');
+                                    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+                                    alertDiv.innerHTML = `
+                                        ${message}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    `;
+                                    
+                                    // Добавляем на страницу
+                                    const container = document.querySelector('.container') || document.body;
+                                    container.insertBefore(alertDiv, container.firstChild);
+                                    
+                                    // Автоматически скрываем через 5 секунд
+                                    setTimeout(() => {
+                                        if (alertDiv.parentElement) {
+                                            alertDiv.remove();
+                                        }
+                                    }, 5000);
+                                }
+
+                                // Функция для обновления счетчика корзины
+                                function updateCartCounter(count) {
+                                    // Ищем все элементы с классом cart-count
+                                    const counters = document.querySelectorAll('.cart-count, .badge.bg-danger');
+                                    
+                                    counters.forEach(counter => {
+                                        counter.textContent = count;
+                                        counter.style.display = count > 0 ? 'inline' : 'none';
+                                    });
+                                    
+                                    // Если элемент не найден, создаем его
+                                    if (counters.length === 0 && count > 0) {
+                                        console.log('Счетчик корзины не найден, создаем новый');
+                                        // Можно создать счетчик в шапке
+                                        const navbar = document.querySelector('.navbar-nav');
+                                        if (navbar) {
+                                            const cartLink = navbar.querySelector('a[href*="cart"]');
+                                            if (cartLink) {
+                                                const badge = document.createElement('span');
+                                                badge.className = 'badge bg-danger rounded-pill ms-1';
+                                                badge.textContent = count;
+                                                cartLink.appendChild(badge);
+                                            }
+                                        }
+                                    }
+                                }
+                                </script>
+
                                 
                                 <button class="btn btn-outline-primary btn-sm test-ajax-btn"
                                         data-product-id="{{ product.id }}"
